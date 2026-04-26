@@ -1,12 +1,239 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black; color:white; text-align:center;">
+<head>
+  <title>Private Stream</title>
 
-<h1>My Music</h1>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-<audio controls>
-  <source src="song1.mp3" type="audio/mpeg">
-</audio>
+  <style>
+    body {
+      margin: 0;
+      background: #0b0b0b;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 320px;
+      text-align: center;
+    }
+
+    .cover {
+      width: 220px;
+      height: 220px;
+      border-radius: 15px;
+      object-fit: cover;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .title {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+
+    .artist {
+      font-size: 13px;
+      opacity: 0.5;
+      margin-top: 5px;
+    }
+
+    /* 🎛 custom player */
+    .player {
+      margin-top: 20px;
+      background: #111;
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      opacity: 0.7;
+    }
+
+    button:hover {
+      opacity: 1;
+    }
+
+    /* progress bar */
+    .bar {
+      width: 100%;
+      height: 3px;
+      background: #333;
+      margin-top: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: white;
+    }
+
+    .tracklist {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .song {
+      font-size: 14px;
+      opacity: 0.6;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .song:hover {
+      opacity: 1;
+    }
+
+    .active {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <img id="cover" class="cover" src="cover1.jpg">
+
+    <div class="title" id="title">Select a song</div>
+    <div class="artist" id="artist">—</div>
+
+    <!-- CUSTOM PLAYER (no visible audio controls) -->
+    <audio id="audio"></audio>
+
+    <div class="player">
+
+      <div class="bar">
+        <div class="progress" id="progress"></div>
+      </div>
+
+      <div class="controls">
+        <button onclick="prev()">⏮</button>
+        <button onclick="togglePlay()" id="playBtn">▶</button>
+        <button onclick="next()">⏭</button>
+      </div>
+
+    </div>
+
+    <div class="tracklist">
+      <div class="song" onclick="playSong(0)">Track 1</div>
+      <div class="song" onclick="playSong(1)">Track 2</div>
+      <div class="song" onclick="playSong(2)">Track 3</div>
+    </div>
+
+  </div>
+
+  <script>
+    const audio = document.getElementById("audio");
+    const title = document.getElementById("title");
+    const artist = document.getElementById("artist");
+    const cover = document.getElementById("cover");
+    const progress = document.getElementById("progress");
+    const playBtn = document.getElementById("playBtn");
+    const songs = document.querySelectorAll(".song");
+
+    const playlist = [
+      {
+        file: "song1.mp3",
+        title: "Track 1",
+        artist: "Artist A (feat. Artist B)",
+        cover: "cover1.jpg"
+      },
+      {
+        file: "song2.mp3",
+        title: "Track 2",
+        artist: "Artist C",
+        cover: "cover2.jpg"
+      },
+      {
+        file: "song3.mp3",
+        title: "Track 3",
+        artist: "Artist D (feat. Artist E)",
+        cover: "cover3.jpg"
+      }
+    ];
+
+    let current = 0;
+    let isPlaying = false;
+
+    function loadSong(i) {
+      const s = playlist[i];
+
+      audio.src = s.file;
+      title.innerText = s.title;
+      artist.innerText = s.artist;
+      cover.src = s.cover;
+
+      highlight(i);
+    }
+
+    function playSong(i) {
+      current = i;
+      loadSong(i);
+      audio.play();
+      isPlaying = true;
+      playBtn.innerText = "⏸";
+    }
+
+    function togglePlay() {
+      if (!audio.src) return;
+
+      if (isPlaying) {
+        audio.pause();
+        playBtn.innerText = "▶";
+      } else {
+        audio.play();
+        playBtn.innerText = "⏸";
+      }
+
+      isPlaying = !isPlaying;
+    }
+
+    function next() {
+      current = (current + 1) % playlist.length;
+      playSong(current);
+    }
+
+    function prev() {
+      current = (current - 1 + playlist.length) % playlist.length;
+      playSong(current);
+    }
+
+    function highlight(i) {
+      songs.forEach(s => s.classList.remove("active"));
+      if (songs[i]) songs[i].classList.add("active");
+    }
+
+    // progress bar
+    audio.addEventListener("timeupdate", () => {
+      const percent = (audio.currentTime / audio.duration) * 100;
+      progress.style.width = percent + "%";
+    });
+
+    audio.addEventListener("ended", next);
+  </script>
 
 </body>
 </html>
