@@ -156,6 +156,7 @@ button:hover {
     <div class="song" onclick="playSong(0)">Chakras</div>
     <div class="song" onclick="playSong(1)">Calm Before The Storm</div>
     <div class="song" onclick="playSong(2)">The Storm</div>
+    <div class="song" onclick="playSong(3)">Spread Your Wings</div>
 
   </div>
 
@@ -168,42 +169,26 @@ button:hover {
     const songs = document.querySelectorAll(".song");
 
 const playlist = [
-  {
-    file: "song1.mp3",
-    title: "Chakras",
-    mainArtist: "Kanye West",
-  },
-  {
-    file: "song2.mp3",
-    title: "Calm Before The Storm",
-    mainArtist: "Kanye West",
-    features: "Ty Dolla $ign"
-  },
-  {
-    file: "song3.mp3",
-    title: "The Storm",
-    mainArtist: "Kanye West",
-    features: "Ty Dolla $ign, Kid Cudi & XXXTENTACION"
-  }
+  { file: "song1.mp3", title: "Chakras", artist: "Kanye West" },
+  { file: "song2.mp3", title: "Calm Before The Storm", artist: "Kanye West (feat. Ty Dolla $ign)" },
+  { file: "song3.mp3", title: "The Storm", artist: "Kanye West (feat. Ty Dolla $ign, Kid Cudi & XXXTENTACION)" }
+  { file: "song4.mp3", title: "Spread Your Wings", artist: "Kanye West" }
 ];
-
+    
     let current = 0;
     let playing = false;
 
-  function loadSong(i) {
+function loadSong(i) {
   const s = playlist[i];
 
   audio.src = s.file;
   title.innerText = s.title;
-
-  // format artist line like real apps
-  if (s.features) {
-    artist.innerText = `${s.mainArtist} (feat. ${s.features})`;
-  } else {
-    artist.innerText = s.mainArtist;
-  }
+  artist.innerText = s.artist;
 
   highlight(i);
+
+  // 🔥 THIS enables lock screen / media session info
+  updateMediaSession(s);
 }
 
     function playSong(i) {
@@ -250,7 +235,7 @@ const playlist = [
 
     audio.addEventListener("ended", next);
   </script>
-
+  
   function updateMediaSession(song) {
   if (!('mediaSession' in navigator)) return;
 
