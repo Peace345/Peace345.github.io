@@ -152,24 +152,45 @@
     const playBtn = document.getElementById("playBtn");
     const songs = document.querySelectorAll(".song");
 
-    const playlist = [
-      { file: "song1.mp3", title: "Chakras", artist: "Artist A (feat. B)" },
-      { file: "song2.mp3", title: "Calm Before The Storm", artist: "Artist C" },
-      { file: "song3.mp3", title: "Track 3", artist: "Artist D" }
-    ];
+const playlist = [
+  {
+    file: "song1.mp3",
+    title: "Track 1",
+    mainArtist: "Kanye West",
+    features: "B"
+  },
+  {
+    file: "song2.mp3",
+    title: "Track 2",
+    mainArtist: "Kanye West",
+    features: "C"
+  },
+  {
+    file: "song3.mp3",
+    title: "Track 3",
+    mainArtist: "Kanye West",
+    features: "D"
+  }
+];
 
     let current = 0;
     let playing = false;
 
-    function loadSong(i) {
-      const s = playlist[i];
+  function loadSong(i) {
+  const s = playlist[i];
 
-      audio.src = s.file;
-      title.innerText = s.title;
-      artist.innerText = s.artist;
+  audio.src = s.file;
+  title.innerText = s.title;
 
-      highlight(i);
-    }
+  // format artist line like real apps
+  if (s.features) {
+    artist.innerText = `${s.mainArtist} (feat. ${s.features})`;
+  } else {
+    artist.innerText = s.mainArtist;
+  }
+
+  highlight(i);
+}
 
     function playSong(i) {
       current = i;
