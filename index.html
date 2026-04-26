@@ -251,5 +251,33 @@ const playlist = [
     audio.addEventListener("ended", next);
   </script>
 
+  function updateMediaSession(song) {
+  if (!('mediaSession' in navigator)) return;
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: song.title,
+    artist: song.artist,
+    album: "My Private Album",
+    artwork: [
+      { src: "cover.jpg", sizes: "512x512", type: "image/jpg" }
+    ]
+  });
+
+  navigator.mediaSession.setActionHandler("play", () => {
+    audio.play();
+    playing = true;
+    playBtn.innerText = "⏸";
+  });
+
+  navigator.mediaSession.setActionHandler("pause", () => {
+    audio.pause();
+    playing = false;
+    playBtn.innerText = "▶";
+  });
+
+  navigator.mediaSession.setActionHandler("previoustrack", prev);
+  navigator.mediaSession.setActionHandler("nexttrack", next);
+}
+
 </body>
 </html>
