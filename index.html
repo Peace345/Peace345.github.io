@@ -160,89 +160,166 @@ button:hover {
 
   </div>
 
-  <script>
-    const audio = document.getElementById("audio");
-    const title = document.getElementById("title");
-    const artist = document.getElementById("artist");
-    const progress = document.getElementById("progress");
-    const playBtn = document.getElementById("playBtn");
-    const songs = document.querySelectorAll(".song");
+ <script>
+  const audio = document.getElementById("audio");
+  const title = document.getElementById("title");
+  const artist = document.getElementById("artist");
+  const progress = document.getElementById("progress");
+  const playBtn = document.getElementById("playBtn");
+  const songs = document.querySelectorAll(".song");
 
-const playlist = [
-  { file: "song1.mp3", title: "Chakras", artist: "Kanye West" },
-  { file: "song2.mp3", title: "Calm Before The Storm", artist: "Kanye West (feat. Ty Dolla $ign)" },
-  { file: "song3.mp3", title: "The Storm", artist: "Kanye West (feat. Ty Dolla $ign, Kid Cudi & XXXTENTACION)" }
-  { file: "song4.mp3", title: "Spread Your Wings", artist: "Kanye West" }
-];
-    
-    let current = 0;
-    let playing = false;
+  let current = 0;
+  let playing = false;
 
-function loadSong(i) {
-  const s = playlist[i];
+  // -----------------------------
+  // YANDHI ALBUM DATA
+  // -----------------------------
+  const playlist = [
+    {
+      file: "song1.mp3",
+      title: "Chakras",
+      artist: "Kanye West",
+      features: []
+    },
+    {
+      file: "song2.mp3",
+      title: "Calm Before The Storm",
+      artist: "Kanye West",
+      features: ["Ty Dolla $ign"]
+    },
+    {
+      file: "song3.mp3",
+      title: "The Storm",
+      artist: "Kanye West",
+      features: ["Ty Dolla $ign", "Kid Cudi", "XXXTENTACION"]
+    },
+    {
+      file: "song4.mp3",
+      title: "Spread Your Wings",
+      artist: "Kanye West",
+      features: []
+    }
+  ];
 
-  audio.src = s.file;
-  title.innerText = s.title;
-  artist.innerText = s.artist;
+  // -----------------------------
+  // LOAD SONG
+  // -----------------------------
+  function loadSong(i) {
+    const s = playlist[i];
 
-  highlight(i);
+    audio.src = s.file;
+    title.innerText = s.title;
 
-  // 🔥 THIS enables lock screen / media session info
-  updateMediaSession(s);
-}
+    // format features cleanly
+    if (s.features.length > 0) {
+      artist.innerText = `${s.artist} (feat. ${s.features.join(", ")})`;
+    } else {
+      artist.innerText = s.artist;
+    }
 
-    function playSong(i) {
-      current = i;
-      loadSong(i);
+    highlight(i);
+    updateMediaSession(s);
+  }
+
+  // -----------------------------
+  // PLAY SONG
+  // -----------------------------
+  function playSong(i) {
+    current = i;
+    loadSong(i);
+
+    audio.play();
+    playing = true;
+    playBtn.innerText = "⏸";
+  }
+
+  // -----------------------------
+  // TOGGLE PLAY
+  // -----------------------------
+  function togglePlay() {
+    if (!audio.src) return;
+
+    if (playing) {
+      audio.pause();
+      playBtn.innerText = "▶";
+    } else {
       audio.play();
-      playing = true;
       playBtn.innerText = "⏸";
     }
 
-    function togglePlay() {
-      if (!audio.src) return;
+    playing = !playing;
+  }
 
-      if (playing) {
-        audio.pause();
-        playBtn.innerText = "▶";
-      } else {
-        audio.play();
-        playBtn.innerText = "⏸";
-      }
+  // -----------------------------
+  // NEXT / PREV
+  // -----------------------------
+  function next() {
+    current = (current + 1) % playlist.length;
+    playSong(current);
+  }
 
-      playing = !playing;
-    }
+  function prev() {
+    current = (current - 1 + playlist.length) % playlist.length;
+    playSong(current);
+  }
 
-    function next() {
-      current = (current + 1) % playlist.length;
-      playSong(current);
-    }
+  // -----------------------------
+  // HIGHLIGHT SONG
+  // -----------------------------
+  function highlight(i) {
+    songs.forEach(s => s.classList.remove("active"));
+    if (songs[i]) songs[i].classList.add("active");
+  }
 
-    function prev() {
-      current = (current - 1 + playlist.length) % playlist.length;
-      playSong(current);
-    }
+  // -----------------------------
+  // PROGRESS BAR
+  // -----------------------------
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    progress.style.width = pct + "%";
+  });
 
-    function highlight(i) {
-      songs.forEach(s => s.classList.remove("active"));
-      if (songs[i]) songs[i].classList.add("active");
-    }
+  audio.addEventListener("ended", next);
 
-    audio.addEventListener("timeupdate", () => {
-      const pct = (audio.currentTime / audio.duration) * 100;
-      progress.style.width = pct + "%";
+  // -----------------------------
+  // MEDIA SESSION (LOCK SCREEN)
+  // -----------------------------
+  function updateMediaSession(song) {
+    if (!('mediaSession' in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.title,
+      artist: artist.innerText,
+      album: "Yandhi",
+      artwork: [
+        { src: "cover.jpg", sizes: "512x512", type: "image/jpg" }
+      ]
     });
 
-    audio.addEventListener("ended", next);
-  </script>
-  
-  function updateMediaSession(song) {
+    navigator.mediaSession.setActionHandler("play", () => {
+      audio.play();
+      playing = true;
+      playBtn.innerText = "⏸";
+    });
+
+    navigator.mediaSession.setActionHandler("pause", () => {
+      audio.pause();
+      playing = false;
+      playBtn.innerText = "▶";
+    });
+
+    navigator.mediaSession.setActionHandler("previoustrack", prev);
+    navigator.mediaSession.setActionHandler("nexttrack", next);
+  }
+
+   function updateMediaSession(song) {
   if (!('mediaSession' in navigator)) return;
 
   navigator.mediaSession.metadata = new MediaMetadata({
     title: song.title,
-    artist: song.artist,
-    album: "My Private Album",
+    artist: artist.innerText,
+    album: "Yandhi",
     artwork: [
       { src: "cover.jpg", sizes: "512x512", type: "image/jpg" }
     ]
@@ -263,6 +340,7 @@ function loadSong(i) {
   navigator.mediaSession.setActionHandler("previoustrack", prev);
   navigator.mediaSession.setActionHandler("nexttrack", next);
 }
+</script>
 
 </body>
 </html>
